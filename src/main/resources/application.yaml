@@ -1,10 +1,14 @@
 server:
   port: 8081
+  servlet:
+    context-path: /api
 spring:
   application:
     name: exchange-rate-service
 
-exchangerate:
-  host:
-    base-url: https://api.exchangerate.host
-    access-key: ${EXCHANGERATE_HOST_API_KEY}
+exchange-rate:
+  providers:
+    exchangerate-host:
+      enabled: true
+      base-url: https://api.exchangerate.host
+      access-key: ${EXCHANGERATE_HOST_API_KEY}

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
     name = "exchangerate-host",
-    url = "${exchangerate.host.base-url}"
+    url = "${exchange-rate.providers.exchangerate-host.base-url}"
 )
 public interface ExchangeRateHostClient {
 

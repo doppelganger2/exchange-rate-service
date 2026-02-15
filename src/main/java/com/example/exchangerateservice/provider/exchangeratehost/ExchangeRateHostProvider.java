@@ -3,6 +3,7 @@ package com.example.exchangerateservice.provider.exchangeratehost;
 import com.example.exchangerateservice.dto.ExchangeRateData;
 import com.example.exchangerateservice.exception.ExchangeRateUnavailableException;
 import com.example.exchangerateservice.provider.ExchangeRateProvider;
+import com.example.exchangerateservice.provider.ExchangeRateProviderType;
 import com.example.exchangerateservice.provider.exchangeratehost.dto.ExchangeRateHostResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +26,7 @@ public class ExchangeRateHostProvider implements ExchangeRateProvider {
 
     public ExchangeRateHostProvider(
             ExchangeRateHostClient client,
-            @Value("${exchangerate.host.access-key}") String accessKey) {
+            @Value("${exchange-rate.providers.exchangerate-host.access-key}") String accessKey) {
         this.client = client;
         this.accessKey = accessKey;
     }
@@ -38,12 +40,20 @@ public class ExchangeRateHostProvider implements ExchangeRateProvider {
         }
 
         Map<Currency, BigDecimal> rates = parseRates(response.source(), response.quotes());
-        return new ExchangeRateData(baseCurrency, rates);
+        Instant providerTimestamp = response.timestamp() != null
+                ? Instant.ofEpochSecond(response.timestamp())
+                : Instant.now();
+        return new ExchangeRateData(baseCurrency, rates, type(), providerTimestamp);
+    }
+
+    @Override
+    public ExchangeRateProviderType type() {
+        return ExchangeRateProviderType.EXCHANGERATE_HOST;
     }
 
     @Override
     public String getName() {
-        return "exchangerate.host";
+        return type().getDisplayName();
     }
 
     /**

@@ -6,6 +6,9 @@ import java.math.BigDecimal;
 
 @Schema(description = "Currency conversion response for a single currency pair")
 public record ConversionResponse(
+    @Schema(description = "Provider metadata", requiredMode = Schema.RequiredMode.REQUIRED)
+    ProviderInfo providerInfo,
+
     @Schema(
         description = "Source currency code (ISO 4217)",
         example = "USD",

@@ -1,11 +1,15 @@
 package com.example.exchangerateservice.controller;
 
 import com.example.exchangerateservice.api.ExchangeRateApi;
+import com.example.exchangerateservice.dto.ConversionResult;
+import com.example.exchangerateservice.dto.MultiConversionResult;
+import com.example.exchangerateservice.dto.RateResult;
 import com.example.exchangerateservice.dto.response.AllRatesResponse;
 import com.example.exchangerateservice.dto.response.ConversionResponse;
 import com.example.exchangerateservice.dto.response.MultiConversionResponse;
 import com.example.exchangerateservice.dto.response.RateResponse;
 import com.example.exchangerateservice.mapper.ExchangeRateResponseMapper;
+import com.example.exchangerateservice.provider.ExchangeRateProviderType;
 import com.example.exchangerateservice.service.ExchangeRateService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +22,7 @@ import java.util.Currency;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/rates")
 public class ExchangeRateController implements ExchangeRateApi {
 
     private final ExchangeRateService exchangeRateService;
@@ -30,15 +34,25 @@ public class ExchangeRateController implements ExchangeRateApi {
     }
 
     @Override
-    @GetMapping("/rates/{from}/{to}")
-    public RateResponse getRate(@PathVariable Currency from, @PathVariable Currency to) {
-        return mapper.toRateResponse(from, to, exchangeRateService.getRate(from, to));
+    @GetMapping("/{from}/{to}")
+    public RateResponse getRate(
+            @PathVariable Currency from,
+            @PathVariable Currency to,
+            @RequestParam(required = false) String provider,
+            @RequestParam(required = false, defaultValue = "false") boolean fallback) {
+        ExchangeRateProviderType providerType = provider != null ? ExchangeRateProviderType.fromId(provider) : null;
+        RateResult result = exchangeRateService.getRate(from, to, providerType, fallback);
+        return mapper.toRateResponse(result.data(), from, to, result.rate());
     }
 
     @Override
-    @GetMapping("/rates/{from}")
-    public AllRatesResponse getAllRates(@PathVariable Currency from) {
-        return mapper.toAllRatesResponse(exchangeRateService.getAllRates(from));
+    @GetMapping("/{from}")
+    public AllRatesResponse getAllRates(
+            @PathVariable Currency from,
+            @RequestParam(required = false) String provider,
+            @RequestParam(required = false, defaultValue = "false") boolean fallback) {
+        ExchangeRateProviderType providerType = provider != null ? ExchangeRateProviderType.fromId(provider) : null;
+        return mapper.toAllRatesResponse(exchangeRateService.getAllRates(from, providerType, fallback));
     }
 
     @Override
@@ -46,8 +60,12 @@ public class ExchangeRateController implements ExchangeRateApi {
     public ConversionResponse convert(
             @RequestParam Currency from,
             @RequestParam Currency to,
-            @RequestParam BigDecimal amount) {
-        return mapper.toConversionResponse(from, to, amount, exchangeRateService.convert(from, to, amount));
+            @RequestParam BigDecimal amount,
+            @RequestParam(required = false) String provider,
+            @RequestParam(required = false, defaultValue = "false") boolean fallback) {
+        ExchangeRateProviderType providerType = provider != null ? ExchangeRateProviderType.fromId(provider) : null;
+        ConversionResult result = exchangeRateService.convert(from, to, amount, providerType, fallback);
+        return mapper.toConversionResponse(result.data(), from, to, amount, result.result());
     }
 
     @Override
@@ -55,7 +73,11 @@ public class ExchangeRateController implements ExchangeRateApi {
     public MultiConversionResponse convertBulk(
             @RequestParam Currency from,
             @RequestParam List<Currency> to,
-            @RequestParam BigDecimal amount) {
-        return mapper.toMultiConversionResponse(from, amount, exchangeRateService.convertToMultiple(from, to, amount));
+            @RequestParam BigDecimal amount,
+            @RequestParam(required = false) String provider,
+            @RequestParam(required = false, defaultValue = "false") boolean fallback) {
+        ExchangeRateProviderType providerType = provider != null ? ExchangeRateProviderType.fromId(provider) : null;
+        MultiConversionResult result = exchangeRateService.convertToMultiple(from, to, amount, providerType, fallback);
+        return mapper.toMultiConversionResponse(result.data(), from, amount, result.results());
     }
 }
