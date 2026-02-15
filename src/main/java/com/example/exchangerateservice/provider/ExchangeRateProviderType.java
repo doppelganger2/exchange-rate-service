@@ -2,7 +2,8 @@ package com.example.exchangerateservice.provider;
 
 public enum ExchangeRateProviderType {
     EXCHANGERATE_HOST("exchangerate_host", "exchangerate.host"),
-    OPEN_EXCHANGE_RATES("open_exchange_rates", "Open Exchange Rates");
+    OPEN_EXCHANGE_RATES("open_exchange_rates", "Open Exchange Rates"),
+    FRANKFURTER("frankfurter", "Frankfurter");
 
     private final String id;
     private final String displayName;
