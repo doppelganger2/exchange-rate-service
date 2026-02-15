@@ -1,5 +1,6 @@
 package com.example.exchangerateservice.controller;
 
+import com.example.exchangerateservice.api.ExchangeRateApi;
 import com.example.exchangerateservice.dto.response.AllRatesResponse;
 import com.example.exchangerateservice.dto.response.ConversionResponse;
 import com.example.exchangerateservice.dto.response.MultiConversionResponse;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class ExchangeRateController {
+public class ExchangeRateController implements ExchangeRateApi {
 
     private final ExchangeRateService exchangeRateService;
     private final ExchangeRateResponseMapper mapper;
@@ -28,28 +29,19 @@ public class ExchangeRateController {
         this.mapper = mapper;
     }
 
-    /**
-     * Operation a: Get exchange rate from Currency A to Currency B.
-     * GET /api/rates/{from}/{to}
-     */
+    @Override
     @GetMapping("/rates/{from}/{to}")
     public RateResponse getRate(@PathVariable Currency from, @PathVariable Currency to) {
         return mapper.toRateResponse(from, to, exchangeRateService.getRate(from, to));
     }
 
-    /**
-     * Operation b: Get all exchange rates from Currency A.
-     * GET /api/rates/{from}
-     */
+    @Override
     @GetMapping("/rates/{from}")
     public AllRatesResponse getAllRates(@PathVariable Currency from) {
         return mapper.toAllRatesResponse(exchangeRateService.getAllRates(from));
     }
 
-    /**
-     * Operation c: Convert value from Currency A to Currency B.
-     * GET /api/convert?from=USD&to=EUR&amount=100
-     */
+    @Override
     @GetMapping("/convert")
     public ConversionResponse convert(
             @RequestParam Currency from,
@@ -58,10 +50,7 @@ public class ExchangeRateController {
         return mapper.toConversionResponse(from, to, amount, exchangeRateService.convert(from, to, amount));
     }
 
-    /**
-     * Operation d: Convert value from Currency A to a list of supplied currencies.
-     * GET /api/convert/bulk?from=USD&to=EUR,GBP,JPY&amount=100
-     */
+    @Override
     @GetMapping("/convert/bulk")
     public MultiConversionResponse convertBulk(
             @RequestParam Currency from,
