@@ -3,3 +3,6 @@ exchange-rate:
     exchangerate-host:
       base-url: http://localhost
       access-key: test
+    freecurrencyapi:
+      base-url: http://localhost
+      access-key: test

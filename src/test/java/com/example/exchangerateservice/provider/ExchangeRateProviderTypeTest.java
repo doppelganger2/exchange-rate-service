@@ -11,6 +11,10 @@ class ExchangeRateProviderTypeTest {
     void fromIdReturnsMatchingType() {
         assertEquals(ExchangeRateProviderType.EXCHANGERATE_HOST,
                 ExchangeRateProviderType.fromId("exchangerate_host"));
+        assertEquals(ExchangeRateProviderType.FRANKFURTER,
+                ExchangeRateProviderType.fromId("frankfurter"));
+        assertEquals(ExchangeRateProviderType.FREECURRENCYAPI,
+                ExchangeRateProviderType.fromId("freecurrencyapi"));
     }
 
     @Test
