@@ -23,7 +23,7 @@ class ExchangeRateServiceTest {
     @Test
     void specificProviderWithoutFallbackPropagatesFailure() {
         StubProvider primary = new StubProvider(ExchangeRateProviderType.EXCHANGERATE_HOST, true);
-        StubProvider secondary = new StubProvider(ExchangeRateProviderType.OPEN_EXCHANGE_RATES, false);
+        StubProvider secondary = new StubProvider(ExchangeRateProviderType.FRANKFURTER, false);
         ExchangeRateService service = new ExchangeRateService(new ProviderRegistry(List.of(primary, secondary)), null);
 
         Currency usd = Currency.getInstance("USD");
@@ -38,12 +38,12 @@ class ExchangeRateServiceTest {
     @Test
     void specificProviderWithFallbackTriesNextProvider() {
         StubProvider primary = new StubProvider(ExchangeRateProviderType.EXCHANGERATE_HOST, true);
-        StubProvider secondary = new StubProvider(ExchangeRateProviderType.OPEN_EXCHANGE_RATES, false);
+        StubProvider secondary = new StubProvider(ExchangeRateProviderType.FRANKFURTER, false);
         ExchangeRateService service = new ExchangeRateService(new ProviderRegistry(List.of(primary, secondary)), null);
 
         ExchangeRateData data = service.getAllRates(Currency.getInstance("USD"), ExchangeRateProviderType.EXCHANGERATE_HOST, true);
 
-        assertEquals(ExchangeRateProviderType.OPEN_EXCHANGE_RATES, data.providerType());
+        assertEquals(ExchangeRateProviderType.FRANKFURTER, data.providerType());
         assertEquals(1, primary.calls.get());
         assertEquals(1, secondary.calls.get());
     }
@@ -51,12 +51,12 @@ class ExchangeRateServiceTest {
     @Test
     void noProviderSpecifiedUsesFallbackChain() {
         StubProvider primary = new StubProvider(ExchangeRateProviderType.EXCHANGERATE_HOST, true);
-        StubProvider secondary = new StubProvider(ExchangeRateProviderType.OPEN_EXCHANGE_RATES, false);
+        StubProvider secondary = new StubProvider(ExchangeRateProviderType.FRANKFURTER, false);
         ExchangeRateService service = new ExchangeRateService(new ProviderRegistry(List.of(primary, secondary)), null);
 
         ExchangeRateData data = service.getAllRates(Currency.getInstance("USD"), null, true);
 
-        assertEquals(ExchangeRateProviderType.OPEN_EXCHANGE_RATES, data.providerType());
+        assertEquals(ExchangeRateProviderType.FRANKFURTER, data.providerType());
         assertEquals(1, primary.calls.get());
         assertEquals(1, secondary.calls.get());
     }

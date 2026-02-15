@@ -25,10 +25,10 @@ class ProviderRegistryTest {
     @Test
     void getOrderedStartingWithMovesPreferredProviderToFront() {
         ExchangeRateProvider primary = new StubProvider(ExchangeRateProviderType.EXCHANGERATE_HOST);
-        ExchangeRateProvider secondary = new StubProvider(ExchangeRateProviderType.OPEN_EXCHANGE_RATES);
+        ExchangeRateProvider secondary = new StubProvider(ExchangeRateProviderType.FRANKFURTER);
         ProviderRegistry registry = new ProviderRegistry(List.of(primary, secondary));
 
-        List<ExchangeRateProvider> ordered = registry.getOrderedStartingWith(ExchangeRateProviderType.OPEN_EXCHANGE_RATES);
+        List<ExchangeRateProvider> ordered = registry.getOrderedStartingWith(ExchangeRateProviderType.FRANKFURTER);
 
         assertEquals(List.of(secondary, primary), ordered);
     }
@@ -36,11 +36,11 @@ class ProviderRegistryTest {
     @Test
     void getAvailableTypesReturnsConfiguredOrder() {
         ExchangeRateProvider primary = new StubProvider(ExchangeRateProviderType.EXCHANGERATE_HOST);
-        ExchangeRateProvider secondary = new StubProvider(ExchangeRateProviderType.OPEN_EXCHANGE_RATES);
+        ExchangeRateProvider secondary = new StubProvider(ExchangeRateProviderType.FRANKFURTER);
         ProviderRegistry registry = new ProviderRegistry(List.of(primary, secondary));
 
         assertEquals(
-                List.of(ExchangeRateProviderType.EXCHANGERATE_HOST, ExchangeRateProviderType.OPEN_EXCHANGE_RATES),
+                List.of(ExchangeRateProviderType.EXCHANGERATE_HOST, ExchangeRateProviderType.FRANKFURTER),
                 registry.getAvailableTypes()
         );
     }
@@ -51,7 +51,7 @@ class ProviderRegistryTest {
         ProviderRegistry registry = new ProviderRegistry(List.of(provider));
 
         assertThrows(IllegalArgumentException.class,
-                () -> registry.getProvider(ExchangeRateProviderType.OPEN_EXCHANGE_RATES));
+                () -> registry.getProvider(ExchangeRateProviderType.FRANKFURTER));
     }
 
     private record StubProvider(ExchangeRateProviderType type) implements ExchangeRateProvider {
