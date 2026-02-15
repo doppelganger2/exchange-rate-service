@@ -15,3 +15,7 @@ exchange-rate:
     frankfurter:
       enabled: true
       base-url: https://api.frankfurter.dev/v1
+    freecurrencyapi:
+      enabled: true
+      base-url: https://api.freecurrencyapi.com/v1
+      access-key: ${FREECURRENCYAPI_KEY}
