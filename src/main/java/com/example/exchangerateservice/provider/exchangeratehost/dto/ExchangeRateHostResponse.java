@@ -6,5 +6,6 @@ import java.util.Map;
 public record ExchangeRateHostResponse(
     boolean success,
     String source,
-    Map<String, BigDecimal> quotes
+    Map<String, BigDecimal> quotes,
+    Long timestamp
 ) {}

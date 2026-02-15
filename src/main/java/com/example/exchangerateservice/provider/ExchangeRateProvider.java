@@ -6,5 +6,6 @@ import java.util.Currency;
 
 public interface ExchangeRateProvider {
     ExchangeRateData getRates(Currency baseCurrency);
+    ExchangeRateProviderType type();
     String getName();
 }

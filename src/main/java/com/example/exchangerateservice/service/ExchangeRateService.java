@@ -1,8 +1,13 @@
 package com.example.exchangerateservice.service;
 
+import com.example.exchangerateservice.dto.ConversionResult;
 import com.example.exchangerateservice.dto.ExchangeRateData;
+import com.example.exchangerateservice.dto.MultiConversionResult;
+import com.example.exchangerateservice.dto.RateResult;
 import com.example.exchangerateservice.exception.ExchangeRateUnavailableException;
 import com.example.exchangerateservice.provider.ExchangeRateProvider;
+import com.example.exchangerateservice.provider.ExchangeRateProviderType;
+import com.example.exchangerateservice.provider.ProviderRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -21,21 +26,31 @@ public class ExchangeRateService {
 
     private static final Logger log = LoggerFactory.getLogger(ExchangeRateService.class);
 
-    private final List<ExchangeRateProvider> providers;
+    private final ProviderRegistry registry;
     private final ExchangeRateService self;
 
-    public ExchangeRateService(List<ExchangeRateProvider> providers, @Lazy ExchangeRateService self) {
-        this.providers = providers;
+    public ExchangeRateService(ProviderRegistry registry, @Lazy ExchangeRateService self) {
+        this.registry = registry;
         this.self = self;
     }
 
     /**
      * Fetch all exchange rates for a given base currency.
      * Results are cached for 1 minute.
-     * Tries each provider in order; if one fails, falls back to the next.
      */
-    @Cacheable(value = "exchangeRates", key = "#baseCurrency.currencyCode")
-    public ExchangeRateData getAllRates(Currency baseCurrency) {
+    @Cacheable(value = "exchangeRates", key = "#baseCurrency.currencyCode + '-' + (#providerType != null ? #providerType.id : 'default')")
+    public ExchangeRateData getAllRates(Currency baseCurrency, ExchangeRateProviderType providerType, boolean fallback) {
+        if (providerType != null && !fallback) {
+            ExchangeRateProvider provider = registry.getProvider(providerType);
+            ExchangeRateData data = provider.getRates(baseCurrency);
+            log.info("Fetched rates for {} from provider '{}'", baseCurrency.getCurrencyCode(), provider.getName());
+            return data;
+        }
+
+        List<ExchangeRateProvider> providers = providerType != null
+                ? registry.getOrderedStartingWith(providerType)
+                : registry.getAll();
+
         for (ExchangeRateProvider provider : providers) {
             try {
                 ExchangeRateData data = provider.getRates(baseCurrency);
@@ -48,32 +63,23 @@ public class ExchangeRateService {
         throw new ExchangeRateUnavailableException("All exchange rate providers failed for base currency: " + baseCurrency.getCurrencyCode());
     }
 
-    /**
-     * Get the exchange rate from one currency to another.
-     */
-    public BigDecimal getRate(Currency from, Currency to) {
-        ExchangeRateData data = self.getAllRates(from);
+    public RateResult getRate(Currency from, Currency to, ExchangeRateProviderType providerType, boolean fallback) {
+        ExchangeRateData data = self.getAllRates(from, providerType, fallback);
         BigDecimal rate = data.rates().get(to);
         if (rate == null) {
             throw new IllegalArgumentException("No rate available for " + from.getCurrencyCode() + " to " + to.getCurrencyCode());
         }
-        return rate;
+        return new RateResult(data, rate);
     }
 
-    /**
-     * Convert an amount from one currency to another.
-     */
-    public BigDecimal convert(Currency from, Currency to, BigDecimal amount) {
-        BigDecimal rate = self.getRate(from, to);
-        return amount.multiply(rate).setScale(2, RoundingMode.HALF_UP);
+    public ConversionResult convert(Currency from, Currency to, BigDecimal amount, ExchangeRateProviderType providerType, boolean fallback) {
+        RateResult rateResult = getRate(from, to, providerType, fallback);
+        BigDecimal result = amount.multiply(rateResult.rate()).setScale(2, RoundingMode.HALF_UP);
+        return new ConversionResult(rateResult.data(), result);
     }
 
-    /**
-     * Convert an amount from one currency to multiple target currencies.
-     * Returns a map of target currency -> converted amount.
-     */
-    public Map<Currency, BigDecimal> convertToMultiple(Currency from, List<Currency> targets, BigDecimal amount) {
-        ExchangeRateData data = self.getAllRates(from);
+    public MultiConversionResult convertToMultiple(Currency from, List<Currency> targets, BigDecimal amount, ExchangeRateProviderType providerType, boolean fallback) {
+        ExchangeRateData data = self.getAllRates(from, providerType, fallback);
         Map<Currency, BigDecimal> results = new LinkedHashMap<>();
         for (Currency target : targets) {
             BigDecimal rate = data.rates().get(target);
@@ -82,6 +88,6 @@ public class ExchangeRateService {
             }
             results.put(target, amount.multiply(rate).setScale(2, RoundingMode.HALF_UP));
         }
-        return results;
+        return new MultiConversionResult(data, results);
     }
 }

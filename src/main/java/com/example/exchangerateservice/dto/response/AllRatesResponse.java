@@ -7,6 +7,9 @@ import java.util.Map;
 
 @Schema(description = "All exchange rates from a base currency to all available currencies")
 public record AllRatesResponse(
+    @Schema(description = "Provider metadata", requiredMode = Schema.RequiredMode.REQUIRED)
+    ProviderInfo providerInfo,
+
     @Schema(
         description = "Base currency code (ISO 4217)",
         example = "USD",

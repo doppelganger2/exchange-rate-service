@@ -7,6 +7,9 @@ import java.util.Map;
 
 @Schema(description = "Bulk currency conversion response from a single source currency to multiple target currencies")
 public record MultiConversionResponse(
+    @Schema(description = "Provider metadata", requiredMode = Schema.RequiredMode.REQUIRED)
+    ProviderInfo providerInfo,
+
     @Schema(
         description = "Source currency code (ISO 4217)",
         example = "USD",
