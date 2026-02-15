@@ -12,3 +12,6 @@ exchange-rate:
       enabled: true
       base-url: https://api.exchangerate.host
       access-key: ${EXCHANGERATE_HOST_API_KEY}
+    frankfurter:
+      enabled: true
+      base-url: https://api.frankfurter.dev/v1
