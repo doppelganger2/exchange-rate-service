@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  exchange-rate-service:
+    build: .
+    ports:
+      - "8081:8081"
+    environment:
+      EXCHANGERATE_HOST_API_KEY: ${EXCHANGERATE_HOST_API_KEY:-}
+      FREECURRENCYAPI_KEY: ${FREECURRENCYAPI_KEY:-}

@@ -10,14 +10,24 @@ per-provider caching, and unit/integration tests.
 - Cache provider responses for 1 minute (Caffeine) to minimize external calls.
 - OpenAPI/Swagger UI for documentation and testing.
 
-## Providers
-The app supports three provider integrations. Availability is controlled by `application.yaml`.
+## Quick start (local)
+Requirements:
+- JDK 25 (see Gradle toolchain in `build.gradle`)
+
+Run:
+```bash
+./gradlew bootRun
+```
+
+## Providers and API keys
+The app supports three provider integrations. Frankfurter is always available, while the
+other two are enabled automatically when their API keys are provided.
 
 | Provider | ID | Notes |
 | --- | --- | --- |
 | Frankfurter | `ff` | Default provider. No API key required. |
-| exchangerate.host | `erh` | Disabled by default. Requires API key (`EXCHANGERATE_HOST_API_KEY`) and `enabled: true`. |
-| FreecurrencyAPI | `fca` | Disabled by default. Requires API key (`FREECURRENCYAPI_KEY`) and `enabled: true`. |
+| exchangerate.host | `erh` | Requires API key (`EXCHANGERATE_HOST_API_KEY`). |
+| FreecurrencyAPI | `fca` | Requires API key (`FREECURRENCYAPI_KEY`). |
 
 Provider ordering (used for fallback) is:
 1) Frankfurter
@@ -33,7 +43,31 @@ You can also list enabled providers at runtime:
 - exchangerate.host: https://exchangerate.host/  
   Click "Get Free API Key", sign up for a free plan, then use the API access key from your dashboard as `EXCHANGERATE_HOST_API_KEY`.
   
-To use these providers, set their `enabled` flag to `true` in `src/main/resources/application.yaml`.
+To use these providers, provide their API keys via environment variables, Gradle, or a local `.env` file:
+
+Environment variables:
+```
+EXCHANGERATE_HOST_API_KEY=your_key_here
+FREECURRENCYAPI_KEY=your_key_here
+```
+
+Gradle project properties:
+```bash
+./gradlew bootRun -PEXCHANGERATE_HOST_API_KEY=your_key_here -PFREECURRENCYAPI_KEY=your_key_here
+```
+
+Local `.env` file (project root; read by `bootRun`):
+```
+EXCHANGERATE_HOST_API_KEY=your_key_here
+FREECURRENCYAPI_KEY=your_key_here
+```
+
+## Configuration
+See `src/main/resources/application.yaml`.
+
+The server defaults to:
+- Port: `8081`
+- Context path: `/api`
 
 ## API
 Base URL: `http://localhost:8081/api`
@@ -79,19 +113,6 @@ curl "http://localhost:8081/api/rates/USD/EUR?provider=erh&fallback=true"
 Import the collection in `postman/exchange-rate-service.postman_collection.json`.
 It includes all controller endpoints with variables for base URL, currencies, provider, and amount.
 
-## Configuration
-See `src/main/resources/application.yaml`.
-
-Environment variables for API keys:
-```
-EXCHANGERATE_HOST_API_KEY=your_key_here
-FREECURRENCYAPI_KEY=your_key_here
-```
-
-The server defaults to:
-- Port: `8081`
-- Context path: `/api`
-
 ## How it works (high level)
 - Controllers map HTTP requests to the service layer.
 - `ExchangeRateService` resolves the provider (or fallback chain), fetches rates,
@@ -99,13 +120,19 @@ The server defaults to:
 - `CachedProviderService` applies a 1-minute per-provider cache for each base currency.
 - Provider adapters map external API payloads into a common `ExchangeRateData` model.
 
-## Running locally
-Requirements:
-- JDK 25 (see Gradle toolchain in `build.gradle`)
-
-Run:
+## Docker
+Build and run:
 ```bash
-./gradlew bootRun
+docker build -t exchange-rate-service .
+docker run --rm -p 8081:8081 \
+  -e EXCHANGERATE_HOST_API_KEY=your_key_here \
+  -e FREECURRENCYAPI_KEY=your_key_here \
+  exchange-rate-service
+```
+
+Or with Docker Compose (reads env vars from your shell or a `.env` file):
+```bash
+docker compose up --build
 ```
 
 ## Tests
