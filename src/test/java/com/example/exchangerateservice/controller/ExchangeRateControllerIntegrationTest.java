@@ -246,6 +246,30 @@ class ExchangeRateControllerIntegrationTest {
     }
 
     @Test
+    void getAllRatesDoesNotReturnCachedFallbackDataWhenFallbackIsDisabled() throws Exception {
+
+        stubExchangeRateHostFailure();
+        stubFrankfurter();
+
+        ResponseEntity<String> firstResponse = restTemplate.getForEntity(
+                baseUrl("/rates/USD?provider=exchangerate_host&fallback=true"),
+                String.class
+        );
+        assertThat(firstResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        JsonNode firstBody = objectMapper.readTree(firstResponse.getBody());
+        assertThat(firstBody.get("providerInfo").get("providerId").asText()).isEqualTo("frankfurter");
+
+        ResponseEntity<String> secondResponse = restTemplate.getForEntity(
+                baseUrl("/rates/USD?provider=exchangerate_host&fallback=false"),
+                String.class
+        );
+
+        assertThat(secondResponse.getStatusCode())
+                .as("Should return 503 Service Unavailable when preferred provider fails and fallback is disabled, even if a previous fallback request succeeded")
+                .isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    @Test
     void getAllRatesDoesNotFallbackWhenDisabled() {
         stubExchangeRateHostFailure();
 

@@ -24,7 +24,8 @@ class ExchangeRateServiceTest {
     void specificProviderWithoutFallbackPropagatesFailure() {
         StubProvider primary = new StubProvider(ExchangeRateProviderType.EXCHANGERATE_HOST, true);
         StubProvider secondary = new StubProvider(ExchangeRateProviderType.FRANKFURTER, false);
-        ExchangeRateService service = new ExchangeRateService(new ProviderRegistry(List.of(primary, secondary)), null);
+        StubCachedProviderService cacheService = new StubCachedProviderService();
+        ExchangeRateService service = new ExchangeRateService(new ProviderRegistry(List.of(primary, secondary)), cacheService);
 
         Currency usd = Currency.getInstance("USD");
         Executable call = () -> service.getAllRates(usd, ExchangeRateProviderType.EXCHANGERATE_HOST, false);
@@ -39,7 +40,8 @@ class ExchangeRateServiceTest {
     void specificProviderWithFallbackTriesNextProvider() {
         StubProvider primary = new StubProvider(ExchangeRateProviderType.EXCHANGERATE_HOST, true);
         StubProvider secondary = new StubProvider(ExchangeRateProviderType.FRANKFURTER, false);
-        ExchangeRateService service = new ExchangeRateService(new ProviderRegistry(List.of(primary, secondary)), null);
+        StubCachedProviderService cacheService = new StubCachedProviderService();
+        ExchangeRateService service = new ExchangeRateService(new ProviderRegistry(List.of(primary, secondary)), cacheService);
 
         ExchangeRateData data = service.getAllRates(Currency.getInstance("USD"), ExchangeRateProviderType.EXCHANGERATE_HOST, true);
 
@@ -52,13 +54,22 @@ class ExchangeRateServiceTest {
     void noProviderSpecifiedUsesFallbackChain() {
         StubProvider primary = new StubProvider(ExchangeRateProviderType.EXCHANGERATE_HOST, true);
         StubProvider secondary = new StubProvider(ExchangeRateProviderType.FRANKFURTER, false);
-        ExchangeRateService service = new ExchangeRateService(new ProviderRegistry(List.of(primary, secondary)), null);
+        StubCachedProviderService cacheService = new StubCachedProviderService();
+        ExchangeRateService service = new ExchangeRateService(new ProviderRegistry(List.of(primary, secondary)), cacheService);
 
         ExchangeRateData data = service.getAllRates(Currency.getInstance("USD"), null, true);
 
         assertEquals(ExchangeRateProviderType.FRANKFURTER, data.providerType());
         assertEquals(1, primary.calls.get());
         assertEquals(1, secondary.calls.get());
+    }
+
+    private static final class StubCachedProviderService extends CachedProviderService {
+        @Override
+        public ExchangeRateData getRates(ExchangeRateProvider provider, Currency baseCurrency) {
+            // Bypass caching for tests
+            return provider.getRates(baseCurrency);
+        }
     }
 
     private static final class StubProvider implements ExchangeRateProvider {
