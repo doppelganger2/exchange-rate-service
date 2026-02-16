@@ -8,7 +8,7 @@ import com.example.exchangerateservice.provider.freecurrencyapi.dto.FreeCurrency
 import com.example.exchangerateservice.provider.freecurrencyapi.dto.FreeCurrencyApiResponse;
 import com.example.exchangerateservice.provider.util.TimestampParser;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +19,7 @@ import java.util.Map;
 
 @Component
 @Order(2)
-@ConditionalOnProperty(prefix = "exchange-rate.providers.freecurrencyapi", name = "enabled", havingValue = "true")
+@ConditionalOnExpression("T(org.springframework.util.StringUtils).hasText('${exchange-rate.providers.freecurrencyapi.access-key:}')")
 public class FreeCurrencyApiProvider extends AbstractExchangeRateProvider {
 
     private final FreeCurrencyApiClient client;

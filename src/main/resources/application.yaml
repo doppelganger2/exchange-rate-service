@@ -9,13 +9,10 @@ spring:
 exchange-rate:
   providers:
     frankfurter:
-      enabled: true
       base-url: https://api.frankfurter.dev/v1
     exchangerate-host:
-      enabled: true
       base-url: https://api.exchangerate.host
-      access-key: ${EXCHANGERATE_HOST_API_KEY}
+      access-key: ${EXCHANGERATE_HOST_API_KEY:}
     freecurrencyapi:
-      enabled: true
       base-url: https://api.freecurrencyapi.com/v1
-      access-key: ${FREECURRENCYAPI_KEY}
+      access-key: ${FREECURRENCYAPI_KEY:}

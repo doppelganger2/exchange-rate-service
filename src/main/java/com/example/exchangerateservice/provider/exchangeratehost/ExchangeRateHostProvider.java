@@ -7,7 +7,7 @@ import com.example.exchangerateservice.provider.ExchangeRateProviderType;
 import com.example.exchangerateservice.provider.exchangeratehost.dto.ExchangeRateHostResponse;
 import com.example.exchangerateservice.provider.util.TimestampParser;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +19,7 @@ import java.util.Map;
 
 @Component
 @Order(1)
-@ConditionalOnProperty(prefix = "exchange-rate.providers.exchangerate-host", name = "enabled", havingValue = "true")
+@ConditionalOnExpression("T(org.springframework.util.StringUtils).hasText('${exchange-rate.providers.exchangerate-host.access-key:}')")
 public class ExchangeRateHostProvider extends AbstractExchangeRateProvider {
 
     private final ExchangeRateHostClient client;
