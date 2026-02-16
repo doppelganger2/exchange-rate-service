@@ -16,6 +16,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -70,5 +71,47 @@ class FreeCurrencyApiProviderTest {
         ExchangeRateUnavailableException ex = assertThrows(ExchangeRateUnavailableException.class,
                 () -> provider.getRates(usd));
         assertNotNull(ex.getMessage());
+    }
+
+    @Test
+    void getRatesUsesNowWhenMetaMissing() {
+        FreeCurrencyApiClient client = mock(FreeCurrencyApiClient.class);
+        FreeCurrencyApiProvider provider = new FreeCurrencyApiProvider(client, "test");
+
+        Map<String, BigDecimal> rawRates = new HashMap<>();
+        rawRates.put("EUR", BigDecimal.valueOf(0.91));
+        rawRates.put("JPY", BigDecimal.valueOf(150.12));
+        FreeCurrencyApiResponse response = new FreeCurrencyApiResponse(null, rawRates);
+
+        when(client.getLatestRates("test", "USD")).thenReturn(response);
+
+        Instant before = Instant.now();
+        ExchangeRateData data = provider.getRates(Currency.getInstance("USD"));
+        Instant after = Instant.now();
+        Instant lowerBound = before.minusSeconds(1);
+        Instant upperBound = after.plusSeconds(1);
+
+        assertTrue(!data.providerTimestamp().isBefore(lowerBound) && !data.providerTimestamp().isAfter(upperBound));
+    }
+
+    @Test
+    void getRatesUsesNowWhenMetaTimestampMissing() {
+        FreeCurrencyApiClient client = mock(FreeCurrencyApiClient.class);
+        FreeCurrencyApiProvider provider = new FreeCurrencyApiProvider(client, "test");
+
+        Map<String, BigDecimal> rawRates = new HashMap<>();
+        rawRates.put("EUR", BigDecimal.valueOf(0.91));
+        rawRates.put("JPY", BigDecimal.valueOf(150.12));
+        FreeCurrencyApiResponse response = new FreeCurrencyApiResponse(new FreeCurrencyApiMeta(null), rawRates);
+
+        when(client.getLatestRates("test", "USD")).thenReturn(response);
+
+        Instant before = Instant.now();
+        ExchangeRateData data = provider.getRates(Currency.getInstance("USD"));
+        Instant after = Instant.now();
+        Instant lowerBound = before.minusSeconds(1);
+        Instant upperBound = after.plusSeconds(1);
+
+        assertTrue(!data.providerTimestamp().isBefore(lowerBound) && !data.providerTimestamp().isAfter(upperBound));
     }
 }
