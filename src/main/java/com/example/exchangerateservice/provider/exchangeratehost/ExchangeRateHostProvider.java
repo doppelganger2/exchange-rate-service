@@ -2,11 +2,10 @@ package com.example.exchangerateservice.provider.exchangeratehost;
 
 import com.example.exchangerateservice.dto.ExchangeRateData;
 import com.example.exchangerateservice.exception.ExchangeRateUnavailableException;
-import com.example.exchangerateservice.provider.ExchangeRateProvider;
+import com.example.exchangerateservice.provider.AbstractExchangeRateProvider;
 import com.example.exchangerateservice.provider.ExchangeRateProviderType;
 import com.example.exchangerateservice.provider.exchangeratehost.dto.ExchangeRateHostResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.exchangerateservice.provider.util.TimestampParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -19,9 +18,7 @@ import java.util.Map;
 
 @Component
 @ConditionalOnProperty(prefix = "exchange-rate.providers.exchangerate-host", name = "enabled", havingValue = "true")
-public class ExchangeRateHostProvider implements ExchangeRateProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(ExchangeRateHostProvider.class);
+public class ExchangeRateHostProvider extends AbstractExchangeRateProvider {
 
     private final ExchangeRateHostClient client;
     private final String accessKey;
@@ -41,10 +38,8 @@ public class ExchangeRateHostProvider implements ExchangeRateProvider {
             throw new ExchangeRateUnavailableException("exchangerate.host API call failed");
         }
 
-        Map<Currency, BigDecimal> rates = parseRates(response.source(), response.quotes());
-        Instant providerTimestamp = response.timestamp() != null
-                ? Instant.ofEpochSecond(response.timestamp())
-                : Instant.now();
+        Map<Currency, BigDecimal> rates = parseRatesWithPrefix(response.source(), response.quotes());
+        Instant providerTimestamp = TimestampParser.parseEpochSeconds(response.timestamp());
         return new ExchangeRateData(baseCurrency, rates, type(), providerTimestamp);
     }
 
@@ -53,41 +48,31 @@ public class ExchangeRateHostProvider implements ExchangeRateProvider {
         return ExchangeRateProviderType.EXCHANGERATE_HOST;
     }
 
-    @Override
-    public String getName() {
-        return type().getDisplayName();
-    }
-
     /**
      * Convert rate keys from strings to Currency instances.
      * Keys are in format "SOURCETARGET" (e.g., "UAHUSD", "UAHEUR").
      * Strips the source currency prefix and parses the target currency.
      * Non-ISO-4217 codes (e.g., "BTC", "XAU") are skipped with a warning.
      */
-    private Map<Currency, BigDecimal> parseRates(String sourceCurrency, Map<String, BigDecimal> quotes) {
+    private Map<Currency, BigDecimal> parseRatesWithPrefix(String sourceCurrency, Map<String, BigDecimal> quotes) {
         Map<Currency, BigDecimal> parsedRates = new HashMap<>();
         int prefixLength = sourceCurrency.length();
 
         for (Map.Entry<String, BigDecimal> entry : quotes.entrySet()) {
             String key = entry.getKey();
 
-            // Strip source currency prefix (e.g., "UAHUSD" -> "USD")
             if (key.length() <= prefixLength || !key.startsWith(sourceCurrency)) {
                 log.warn("Unexpected quote key format: {}", key);
                 continue;
             }
 
             String targetCurrencyCode = key.substring(prefixLength);
-
-            try {
-                Currency targetCurrency = Currency.getInstance(targetCurrencyCode);
+            Currency targetCurrency = parseCurrencySafely(targetCurrencyCode);
+            if (targetCurrency != null) {
                 parsedRates.put(targetCurrency, entry.getValue());
-            } catch (IllegalArgumentException e) {
-                // Skip non-ISO-4217 currencies (e.g., BTC, XAU)
-                log.warn("Skipping non-ISO-4217 currency: {}", targetCurrencyCode);
             }
         }
-        return parsedRates;
+        return Map.copyOf(parsedRates);
     }
 
 }

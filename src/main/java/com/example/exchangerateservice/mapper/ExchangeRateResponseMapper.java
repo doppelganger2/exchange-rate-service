@@ -31,7 +31,7 @@ public class ExchangeRateResponseMapper {
     public AllRatesResponse toAllRatesResponse(ExchangeRateData data) {
         Map<String, BigDecimal> stringRates = new LinkedHashMap<>();
         data.rates().forEach((currency, rate) -> stringRates.put(currency.getCurrencyCode(), rate));
-        return new AllRatesResponse(toProviderInfo(data), data.baseCurrency().getCurrencyCode(), stringRates);
+        return new AllRatesResponse(toProviderInfo(data), data.baseCurrency().getCurrencyCode(), Map.copyOf(stringRates));
     }
 
     public ConversionResponse toConversionResponse(ExchangeRateData data, Currency from, Currency to, BigDecimal amount, BigDecimal result) {
@@ -41,6 +41,6 @@ public class ExchangeRateResponseMapper {
     public MultiConversionResponse toMultiConversionResponse(ExchangeRateData data, Currency from, BigDecimal amount, Map<Currency, BigDecimal> results) {
         Map<String, BigDecimal> stringResults = new LinkedHashMap<>();
         results.forEach((currency, value) -> stringResults.put(currency.getCurrencyCode(), value));
-        return new MultiConversionResponse(toProviderInfo(data), from.getCurrencyCode(), amount, stringResults);
+        return new MultiConversionResponse(toProviderInfo(data), from.getCurrencyCode(), amount, Map.copyOf(stringResults));
     }
 }

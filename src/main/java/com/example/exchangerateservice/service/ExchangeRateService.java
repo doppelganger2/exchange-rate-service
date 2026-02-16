@@ -77,6 +77,6 @@ public class ExchangeRateService {
             }
             results.put(target, amount.multiply(rate).setScale(2, RoundingMode.HALF_UP));
         }
-        return new MultiConversionResult(data, results);
+        return new MultiConversionResult(data, Map.copyOf(results));
     }
 }
