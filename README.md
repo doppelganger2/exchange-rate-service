@@ -33,6 +33,8 @@ You can also list enabled providers at runtime:
 - exchangerate.host: https://exchangerate.host/  
   Click "Get Free API Key", sign up for a free plan, then use the API access key from your dashboard as `EXCHANGERATE_HOST_API_KEY`.
 
+If a provider is enabled but its API key is not set, that provider (and its client) is not created and will not appear in `GET /api/providers`.
+
 ## API
 Base URL: `http://localhost:8081/api`
 
