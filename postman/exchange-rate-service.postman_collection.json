@@ -1,0 +1,164 @@
+{
+  "info": {
+    "name": "Exchange Rate Service",
+    "description": "Postman collection for the Exchange Rate Service API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8081/api" },
+    { "key": "from", "value": "USD" },
+    { "key": "to", "value": "EUR" },
+    { "key": "amount", "value": "100" },
+    { "key": "provider", "value": "ff" },
+    { "key": "fallback", "value": "false" },
+    { "key": "bulkTo", "value": "EUR,GBP,JPY" }
+  ],
+  "item": [
+    {
+      "name": "Providers",
+      "item": [
+        {
+          "name": "List providers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/providers",
+              "host": ["{{baseUrl}}"],
+              "path": ["providers"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rates",
+      "item": [
+        {
+          "name": "Get rate (path params)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rates/{{from}}/{{to}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["rates", "{{from}}", "{{to}}"]
+            }
+          }
+        },
+        {
+          "name": "Get rate (specific provider, fallback)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rates/{{from}}/{{to}}?provider={{provider}}&fallback={{fallback}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["rates", "{{from}}", "{{to}}"],
+              "query": [
+                { "key": "provider", "value": "{{provider}}" },
+                { "key": "fallback", "value": "{{fallback}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get all rates (base currency)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rates/{{from}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["rates", "{{from}}"]
+            }
+          }
+        },
+        {
+          "name": "Get all rates (specific provider, fallback)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rates/{{from}}?provider={{provider}}&fallback={{fallback}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["rates", "{{from}}"],
+              "query": [
+                { "key": "provider", "value": "{{provider}}" },
+                { "key": "fallback", "value": "{{fallback}}" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conversions",
+      "item": [
+        {
+          "name": "Convert amount",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rates/convert?from={{from}}&to={{to}}&amount={{amount}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["rates", "convert"],
+              "query": [
+                { "key": "from", "value": "{{from}}" },
+                { "key": "to", "value": "{{to}}" },
+                { "key": "amount", "value": "{{amount}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Convert amount (specific provider, fallback)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rates/convert?from={{from}}&to={{to}}&amount={{amount}}&provider={{provider}}&fallback={{fallback}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["rates", "convert"],
+              "query": [
+                { "key": "from", "value": "{{from}}" },
+                { "key": "to", "value": "{{to}}" },
+                { "key": "amount", "value": "{{amount}}" },
+                { "key": "provider", "value": "{{provider}}" },
+                { "key": "fallback", "value": "{{fallback}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bulk convert amount",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rates/convert/bulk?from={{from}}&to={{bulkTo}}&amount={{amount}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["rates", "convert", "bulk"],
+              "query": [
+                { "key": "from", "value": "{{from}}" },
+                { "key": "to", "value": "{{bulkTo}}" },
+                { "key": "amount", "value": "{{amount}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bulk convert amount (specific provider, fallback)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rates/convert/bulk?from={{from}}&to={{bulkTo}}&amount={{amount}}&provider={{provider}}&fallback={{fallback}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["rates", "convert", "bulk"],
+              "query": [
+                { "key": "from", "value": "{{from}}" },
+                { "key": "to", "value": "{{bulkTo}}" },
+                { "key": "amount", "value": "{{amount}}" },
+                { "key": "provider", "value": "{{provider}}" },
+                { "key": "fallback", "value": "{{fallback}}" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
