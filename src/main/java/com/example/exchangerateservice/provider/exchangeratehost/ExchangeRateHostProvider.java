@@ -36,8 +36,14 @@ public class ExchangeRateHostProvider extends AbstractExchangeRateProvider {
     public ExchangeRateData getRates(Currency baseCurrency) {
         ExchangeRateHostResponse response = client.getLatestRates(accessKey, baseCurrency.getCurrencyCode());
 
+        if (response == null) {
+            throw new ExchangeRateUnavailableException("exchangerate.host API call failed: empty response");
+        }
         if (!response.success()) {
             throw new ExchangeRateUnavailableException("exchangerate.host API call failed");
+        }
+        if (response.source() == null || response.quotes() == null) {
+            throw new ExchangeRateUnavailableException("exchangerate.host API call failed: missing data");
         }
 
         Map<Currency, BigDecimal> rates = parseRatesWithPrefix(response.source(), response.quotes());

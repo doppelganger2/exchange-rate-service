@@ -16,8 +16,8 @@ The app supports three provider integrations. Availability is controlled by `app
 | Provider | ID | Notes |
 | --- | --- | --- |
 | Frankfurter | `ff` | Default provider. No API key required. |
-| exchangerate.host | `erh` | Requires API key (`EXCHANGERATE_HOST_API_KEY`). |
-| FreecurrencyAPI | `fca` | Requires API key (`FREECURRENCYAPI_KEY`). |
+| exchangerate.host | `erh` | Disabled by default. Requires API key (`EXCHANGERATE_HOST_API_KEY`) and `enabled: true`. |
+| FreecurrencyAPI | `fca` | Disabled by default. Requires API key (`FREECURRENCYAPI_KEY`) and `enabled: true`. |
 
 Provider ordering (used for fallback) is:
 1) Frankfurter
@@ -32,6 +32,8 @@ You can also list enabled providers at runtime:
   Click "Create Free API Key" / "Get 100% Free API Key", create an account, then use the issued API key as `FREECURRENCYAPI_KEY`.
 - exchangerate.host: https://exchangerate.host/  
   Click "Get Free API Key", sign up for a free plan, then use the API access key from your dashboard as `EXCHANGERATE_HOST_API_KEY`.
+  
+To use these providers, set their `enabled` flag to `true` in `src/main/resources/application.yaml`.
 
 ## API
 Base URL: `http://localhost:8081/api`

@@ -344,8 +344,6 @@ class ExchangeRateControllerIntegrationTest {
         assertThat(results.get("EUR").decimalValue()).isEqualByComparingTo("9.20");
     }
 
-
-
     @Test
     void listProvidersReturnsAllProviderIds() throws Exception {
         ResponseEntity<String> response = restTemplate.getForEntity(
