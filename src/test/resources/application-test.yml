@@ -1,8 +1,13 @@
 exchange-rate:
   providers:
+    frankfurter:
+      enabled: true
+      base-url: http://localhost
     exchangerate-host:
+      enabled: true
       base-url: http://localhost
       access-key: test
     freecurrencyapi:
+      enabled: true
       base-url: http://localhost
       access-key: test
