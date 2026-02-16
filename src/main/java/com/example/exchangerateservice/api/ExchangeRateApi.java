@@ -37,7 +37,7 @@ public interface ExchangeRateApi {
                                     schema = @Schema(implementation = RateResponse.class),
                                     examples = @ExampleObject(
                                             name = "USD to EUR rate",
-                                            value = "{\"providerInfo\": {\"providerId\": \"exchangerate_host\", \"providerName\": \"exchangerate.host\", \"timestamp\": \"2026-02-15T17:30:00Z\"}, \"from\": \"USD\", \"to\": \"EUR\", \"rate\": 0.92}"
+                                            value = "{\"providerInfo\": {\"providerId\": \"ff\", \"providerName\": \"Frankfurter\", \"timestamp\": \"2026-02-15T17:30:00Z\"}, \"from\": \"USD\", \"to\": \"EUR\", \"rate\": 0.92}"
                                     )
                             )
                     )
@@ -50,7 +50,7 @@ public interface ExchangeRateApi {
             @Parameter(description = "Target currency code (ISO 4217, 3-letter code)", example = "EUR", required = true)
             @PathVariable Currency to,
 
-            @Parameter(description = "Provider ID (get available IDs from GET /api/providers). If omitted, uses fallback chain.", example = "exchangerate_host")
+            @Parameter(description = "Provider ID (get available IDs from GET /api/providers). If omitted, uses fallback chain.", example = "ff")
             @RequestParam(required = false) String provider,
 
             @Parameter(description = "If true and a specific provider is requested, falls back to other providers on failure. Ignored when provider is not specified.", example = "false")
@@ -69,7 +69,7 @@ public interface ExchangeRateApi {
                                     schema = @Schema(implementation = AllRatesResponse.class),
                                     examples = @ExampleObject(
                                             name = "All rates from USD",
-                                            value = "{\"providerInfo\": {\"providerId\": \"exchangerate_host\", \"providerName\": \"exchangerate.host\", \"timestamp\": \"2026-02-15T17:30:00Z\"}, \"base\": \"USD\", \"rates\": {\"EUR\": 0.92, \"GBP\": 0.79, \"JPY\": 149.50}}"
+                                            value = "{\"providerInfo\": {\"providerId\": \"ff\", \"providerName\": \"Frankfurter\", \"timestamp\": \"2026-02-15T17:30:00Z\"}, \"base\": \"USD\", \"rates\": {\"EUR\": 0.92, \"GBP\": 0.79, \"JPY\": 149.50}}"
                                     )
                             )
                     )
@@ -79,7 +79,7 @@ public interface ExchangeRateApi {
             @Parameter(description = "Base currency code (ISO 4217, 3-letter code)", example = "USD", required = true)
             @PathVariable Currency from,
 
-            @Parameter(description = "Provider ID (get available IDs from GET /api/providers). If omitted, uses fallback chain.", example = "exchangerate_host")
+            @Parameter(description = "Provider ID (get available IDs from GET /api/providers). If omitted, uses fallback chain.", example = "ff")
             @RequestParam(required = false) String provider,
 
             @Parameter(description = "If true and a specific provider is requested, falls back to other providers on failure. Ignored when provider is not specified.", example = "false")
@@ -98,7 +98,7 @@ public interface ExchangeRateApi {
                                     schema = @Schema(implementation = ConversionResponse.class),
                                     examples = @ExampleObject(
                                             name = "Convert 100 USD to EUR",
-                                            value = "{\"providerInfo\": {\"providerId\": \"exchangerate_host\", \"providerName\": \"exchangerate.host\", \"timestamp\": \"2026-02-15T17:30:00Z\"}, \"from\": \"USD\", \"to\": \"EUR\", \"amount\": 100.00, \"result\": 92.00}"
+                                            value = "{\"providerInfo\": {\"providerId\": \"ff\", \"providerName\": \"Frankfurter\", \"timestamp\": \"2026-02-15T17:30:00Z\"}, \"from\": \"USD\", \"to\": \"EUR\", \"amount\": 100.00, \"result\": 92.00}"
                                     )
                             )
                     )
@@ -114,7 +114,7 @@ public interface ExchangeRateApi {
             @Parameter(description = "Amount to convert (must be positive)", example = "100.00", required = true)
             @RequestParam @Positive(message = "Amount must not be negative or zero") BigDecimal amount,
 
-            @Parameter(description = "Provider ID (get available IDs from GET /api/providers). If omitted, uses fallback chain.", example = "exchangerate_host")
+            @Parameter(description = "Provider ID (get available IDs from GET /api/providers). If omitted, uses fallback chain.", example = "ff")
             @RequestParam(required = false) String provider,
 
             @Parameter(description = "If true and a specific provider is requested, falls back to other providers on failure. Ignored when provider is not specified.", example = "false")
@@ -133,7 +133,7 @@ public interface ExchangeRateApi {
                                     schema = @Schema(implementation = MultiConversionResponse.class),
                                     examples = @ExampleObject(
                                             name = "Convert 100 USD to multiple currencies",
-                                            value = "{\"providerInfo\": {\"providerId\": \"exchangerate_host\", \"providerName\": \"exchangerate.host\", \"timestamp\": \"2026-02-15T17:30:00Z\"}, \"from\": \"USD\", \"amount\": 100.00, \"results\": {\"EUR\": 92.00, \"GBP\": 79.00, \"JPY\": 14950.00}}"
+                                            value = "{\"providerInfo\": {\"providerId\": \"ff\", \"providerName\": \"Frankfurter\", \"timestamp\": \"2026-02-15T17:30:00Z\"}, \"from\": \"USD\", \"amount\": 100.00, \"results\": {\"EUR\": 92.00, \"GBP\": 79.00, \"JPY\": 14950.00}}"
                                     )
                             )
                     )
@@ -149,7 +149,7 @@ public interface ExchangeRateApi {
             @Parameter(description = "Amount to convert (must be positive)", example = "100.00", required = true)
             @RequestParam @Positive(message = "Amount must not be negative or zero") BigDecimal amount,
 
-            @Parameter(description = "Provider ID (get available IDs from GET /api/providers). If omitted, uses fallback chain.", example = "exchangerate_host")
+            @Parameter(description = "Provider ID (get available IDs from GET /api/providers). If omitted, uses fallback chain.", example = "ff")
             @RequestParam(required = false) String provider,
 
             @Parameter(description = "If true and a specific provider is requested, falls back to other providers on failure. Ignored when provider is not specified.", example = "false")

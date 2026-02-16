@@ -30,7 +30,7 @@ class ProviderControllerTest {
 
         mockMvc.perform(get("/providers"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value("exchangerate_host"))
+                .andExpect(jsonPath("$[0].id").value("erh"))
                 .andExpect(jsonPath("$[0].name").value("exchangerate.host"));
     }
 }

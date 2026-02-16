@@ -6,6 +6,7 @@ import com.example.exchangerateservice.provider.AbstractExchangeRateProvider;
 import com.example.exchangerateservice.provider.ExchangeRateProviderType;
 import com.example.exchangerateservice.provider.util.TimestampParser;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -14,6 +15,7 @@ import java.util.Currency;
 import java.util.Map;
 
 @Component
+@Order(0)
 @ConditionalOnProperty(prefix = "exchange-rate.providers.frankfurter", name = "enabled", havingValue = "true")
 public class FrankfurterProvider extends AbstractExchangeRateProvider {
 

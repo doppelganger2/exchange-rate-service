@@ -1,9 +1,9 @@
 package com.example.exchangerateservice.provider;
 
 public enum ExchangeRateProviderType {
-    EXCHANGERATE_HOST("exchangerate_host", "exchangerate.host"),
-    FRANKFURTER("frankfurter", "Frankfurter"),
-    FREECURRENCYAPI("freecurrencyapi", "FreecurrencyAPI");
+    EXCHANGERATE_HOST("erh", "exchangerate.host"),
+    FRANKFURTER("ff", "Frankfurter"),
+    FREECURRENCYAPI("fca", "FreecurrencyAPI");
 
     private final String id;
     private final String displayName;
