@@ -8,6 +8,7 @@ import com.example.exchangerateservice.provider.exchangeratehost.dto.ExchangeRat
 import com.example.exchangerateservice.provider.util.TimestampParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@Order(1)
 @ConditionalOnProperty(prefix = "exchange-rate.providers.exchangerate-host", name = "enabled", havingValue = "true")
 public class ExchangeRateHostProvider extends AbstractExchangeRateProvider {
 

@@ -25,7 +25,7 @@ public interface ProviderApi {
                                     schema = @Schema(implementation = ProviderResponse.class),
                                     examples = @ExampleObject(
                                             name = "Available providers",
-                                            value = "[{\"id\": \"exchangerate_host\", \"name\": \"exchangerate.host\"}]"
+                                    value = "[{\"id\": \"ff\", \"name\": \"Frankfurter\"}]"
                                     )
                             )
                     )

@@ -107,15 +107,15 @@ class ExchangeRateControllerIntegrationTest {
             "/rates/USD/EUR?provider=unknown",
             "/rates/USD?provider=unknown",
             "/rates/convert?from=USD&to=EUR&amount=1&provider=unknown",
-            "/rates/USD/XYZ?provider=exchangerate_host",
-            "/rates/XYZ?provider=exchangerate_host",
-            "/rates/convert?from=USD&to=EUR&provider=exchangerate_host",
-            "/rates/convert?to=EUR&amount=1&provider=exchangerate_host",
-            "/rates/convert?from=USD&amount=1&provider=exchangerate_host",
-            "/rates/convert/bulk?from=USD&to=&amount=10&provider=exchangerate_host",
-            "/rates/convert/bulk?from=USD&to=EUR,XYZ&amount=10&provider=exchangerate_host",
-            "/rates/convert/bulk?to=EUR,GBP&amount=10&provider=exchangerate_host",
-            "/rates/convert/bulk?from=USD&to=EUR,GBP&provider=exchangerate_host"
+            "/rates/USD/XYZ?provider=erh",
+            "/rates/XYZ?provider=erh",
+            "/rates/convert?from=USD&to=EUR&provider=erh",
+            "/rates/convert?to=EUR&amount=1&provider=erh",
+            "/rates/convert?from=USD&amount=1&provider=erh",
+            "/rates/convert/bulk?from=USD&to=&amount=10&provider=erh",
+            "/rates/convert/bulk?from=USD&to=EUR,XYZ&amount=10&provider=erh",
+            "/rates/convert/bulk?to=EUR,GBP&amount=10&provider=erh",
+            "/rates/convert/bulk?from=USD&to=EUR,GBP&provider=erh"
     })
     void rejectsWithBadRequest(String path) {
         ResponseEntity<String> response = restTemplate.getForEntity(
@@ -128,9 +128,9 @@ class ExchangeRateControllerIntegrationTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "/rates/USD/CAD?provider=exchangerate_host",
-            "/rates/convert?from=USD&to=CAD&amount=1&provider=exchangerate_host",
-            "/rates/convert/bulk?from=USD&to=EUR,CAD&amount=10&provider=exchangerate_host"
+            "/rates/USD/CAD?provider=erh",
+            "/rates/convert?from=USD&to=CAD&amount=1&provider=erh",
+            "/rates/convert/bulk?from=USD&to=EUR,CAD&amount=10&provider=erh"
     })
     void missingRateRejectsWithBadRequest(String path) {
         stubExchangeRateHost();
@@ -167,7 +167,7 @@ class ExchangeRateControllerIntegrationTest {
         stubExchangeRateHost();
 
         ResponseEntity<String> response = restTemplate.getForEntity(
-                baseUrl("/rates/convert?from=USD&to=EUR&amount=" + amount + "&provider=exchangerate_host"),
+                baseUrl("/rates/convert?from=USD&to=EUR&amount=" + amount + "&provider=erh"),
                 String.class
         );
 
@@ -180,11 +180,11 @@ class ExchangeRateControllerIntegrationTest {
         stubExchangeRateHost();
 
         ResponseEntity<String> first = restTemplate.getForEntity(
-                baseUrl("/rates/USD?provider=exchangerate_host"),
+                baseUrl("/rates/USD?provider=erh"),
                 String.class
         );
         ResponseEntity<String> second = restTemplate.getForEntity(
-                baseUrl("/rates/USD?provider=exchangerate_host"),
+                baseUrl("/rates/USD?provider=erh"),
                 String.class
         );
 
@@ -203,14 +203,14 @@ class ExchangeRateControllerIntegrationTest {
         stubExchangeRateHost();
 
         ResponseEntity<String> response = restTemplate.getForEntity(
-                baseUrl("/rates/USD/EUR?provider=exchangerate_host"),
+                baseUrl("/rates/USD/EUR?provider=erh"),
                 String.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         JsonNode body = objectMapper.readTree(response.getBody());
         assertThat(body.get("rate").decimalValue()).isEqualByComparingTo("0.92");
-        assertThat(body.get("providerInfo").get("providerId").asText()).isEqualTo("exchangerate_host");
+        assertThat(body.get("providerInfo").get("providerId").asText()).isEqualTo("erh");
     }
 
     @Test
@@ -220,14 +220,14 @@ class ExchangeRateControllerIntegrationTest {
         stubFreeCurrencyApi();
 
         ResponseEntity<String> response = restTemplate.getForEntity(
-                baseUrl("/rates/USD?provider=exchangerate_host&fallback=true"),
+                baseUrl("/rates/USD?provider=erh&fallback=true"),
                 String.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         JsonNode body = objectMapper.readTree(response.getBody());
         String providerId = body.get("providerInfo").get("providerId").asText();
-        assertThat(Stream.of("frankfurter", "freecurrencyapi")).contains(providerId);
+        assertThat(Stream.of("ff", "fca")).contains(providerId);
     }
 
     @Test
@@ -235,14 +235,14 @@ class ExchangeRateControllerIntegrationTest {
         stubExchangeRateHost();
 
         ResponseEntity<String> response = restTemplate.getForEntity(
-                baseUrl("/rates/USD?provider=exchangerate_host&fallback=true"),
+                baseUrl("/rates/USD?provider=erh&fallback=true"),
                 String.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         JsonNode body = objectMapper.readTree(response.getBody());
         String providerId = body.get("providerInfo").get("providerId").asText();
-        assertThat(providerId).isEqualTo("exchangerate_host");
+        assertThat(providerId).isEqualTo("erh");
     }
 
     @Test
@@ -252,15 +252,15 @@ class ExchangeRateControllerIntegrationTest {
         stubFrankfurter();
 
         ResponseEntity<String> firstResponse = restTemplate.getForEntity(
-                baseUrl("/rates/USD?provider=exchangerate_host&fallback=true"),
+                baseUrl("/rates/USD?provider=erh&fallback=true"),
                 String.class
         );
         assertThat(firstResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         JsonNode firstBody = objectMapper.readTree(firstResponse.getBody());
-        assertThat(firstBody.get("providerInfo").get("providerId").asText()).isEqualTo("frankfurter");
+        assertThat(firstBody.get("providerInfo").get("providerId").asText()).isEqualTo("ff");
 
         ResponseEntity<String> secondResponse = restTemplate.getForEntity(
-                baseUrl("/rates/USD?provider=exchangerate_host&fallback=false"),
+                baseUrl("/rates/USD?provider=erh&fallback=false"),
                 String.class
         );
 
@@ -274,7 +274,7 @@ class ExchangeRateControllerIntegrationTest {
         stubExchangeRateHostFailure();
 
         ResponseEntity<String> response = restTemplate.getForEntity(
-                baseUrl("/rates/USD?provider=exchangerate_host&fallback=false"),
+                baseUrl("/rates/USD?provider=erh&fallback=false"),
                 String.class
         );
 
@@ -286,7 +286,7 @@ class ExchangeRateControllerIntegrationTest {
         stubExchangeRateHost();
 
         ResponseEntity<String> response = restTemplate.getForEntity(
-                baseUrl("/rates/convert?from=usd&to=eur&amount=1&provider=exchangerate_host"),
+                baseUrl("/rates/convert?from=usd&to=eur&amount=1&provider=erh"),
                 String.class
         );
 
@@ -301,7 +301,7 @@ class ExchangeRateControllerIntegrationTest {
         stubExchangeRateHost();
 
         ResponseEntity<String> response = restTemplate.getForEntity(
-                baseUrl("/rates/convert?from=USD&to=EUR&amount=10.005&provider=exchangerate_host"),
+                baseUrl("/rates/convert?from=USD&to=EUR&amount=10.005&provider=erh"),
                 String.class
         );
 
@@ -315,7 +315,7 @@ class ExchangeRateControllerIntegrationTest {
         stubExchangeRateHost();
 
         ResponseEntity<String> response = restTemplate.getForEntity(
-                baseUrl("/rates/convert/bulk?from=USD&to=EUR,GBP,JPY&amount=10&provider=exchangerate_host"),
+                baseUrl("/rates/convert/bulk?from=USD&to=EUR,GBP,JPY&amount=10&provider=erh"),
                 String.class
         );
 
@@ -332,7 +332,7 @@ class ExchangeRateControllerIntegrationTest {
         stubExchangeRateHost();
 
         ResponseEntity<String> response = restTemplate.getForEntity(
-                baseUrl("/rates/convert/bulk?from=USD&to=EUR,JPY,EUR,GBP&amount=10&provider=exchangerate_host"),
+                baseUrl("/rates/convert/bulk?from=USD&to=EUR,JPY,EUR,GBP&amount=10&provider=erh"),
                 String.class
         );
 
@@ -358,7 +358,7 @@ class ExchangeRateControllerIntegrationTest {
         List<String> ids = new ArrayList<>();
         body.forEach(node -> ids.add(node.get("id").asText()));
 
-        assertThat(ids).contains("exchangerate_host", "frankfurter", "freecurrencyapi");
+        assertThat(ids).contains("erh", "ff", "fca");
     }
 
     private void stubAllProvidersFailure() {

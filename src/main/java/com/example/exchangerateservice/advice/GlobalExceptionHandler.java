@@ -15,6 +15,7 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -75,6 +76,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleHandlerMethodValidation(HandlerMethodValidationException e) {
         String message = e.getAllErrors().stream()
                 .map(MessageSourceResolvable::getDefaultMessage)
+                .filter(Objects::nonNull)
                 .findFirst()
                 .orElse("Validation failed");
         return new ErrorResponse(

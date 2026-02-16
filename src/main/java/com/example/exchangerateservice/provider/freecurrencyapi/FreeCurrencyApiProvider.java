@@ -9,6 +9,7 @@ import com.example.exchangerateservice.provider.freecurrencyapi.dto.FreeCurrency
 import com.example.exchangerateservice.provider.util.TimestampParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.util.Currency;
 import java.util.Map;
 
 @Component
+@Order(2)
 @ConditionalOnProperty(prefix = "exchange-rate.providers.freecurrencyapi", name = "enabled", havingValue = "true")
 public class FreeCurrencyApiProvider extends AbstractExchangeRateProvider {
 
