@@ -10,8 +10,6 @@ import com.example.exchangerateservice.provider.ExchangeRateProviderType;
 import com.example.exchangerateservice.provider.ProviderRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,24 +25,17 @@ public class ExchangeRateService {
     private static final Logger log = LoggerFactory.getLogger(ExchangeRateService.class);
 
     private final ProviderRegistry registry;
-    private final ExchangeRateService self;
+    private final CachedProviderService cachedProviderService;
 
-    public ExchangeRateService(ProviderRegistry registry, @Lazy ExchangeRateService self) {
+    public ExchangeRateService(ProviderRegistry registry, CachedProviderService cachedProviderService) {
         this.registry = registry;
-        this.self = self;
+        this.cachedProviderService = cachedProviderService;
     }
 
-    /**
-     * Fetch all exchange rates for a given base currency.
-     * Results are cached for 1 minute.
-     */
-    @Cacheable(value = "exchangeRates", key = "#baseCurrency.currencyCode + '-' + (#providerType != null ? #providerType.id : 'default')")
     public ExchangeRateData getAllRates(Currency baseCurrency, ExchangeRateProviderType providerType, boolean fallback) {
         if (providerType != null && !fallback) {
             ExchangeRateProvider provider = registry.getProvider(providerType);
-            ExchangeRateData data = provider.getRates(baseCurrency);
-            log.info("Fetched rates for {} from provider '{}'", baseCurrency.getCurrencyCode(), provider.getName());
-            return data;
+            return cachedProviderService.getRates(provider, baseCurrency);
         }
 
         List<ExchangeRateProvider> providers = providerType != null
@@ -53,9 +44,7 @@ public class ExchangeRateService {
 
         for (ExchangeRateProvider provider : providers) {
             try {
-                ExchangeRateData data = provider.getRates(baseCurrency);
-                log.info("Fetched rates for {} from provider '{}'", baseCurrency.getCurrencyCode(), provider.getName());
-                return data;
+                return cachedProviderService.getRates(provider, baseCurrency);
             } catch (Exception e) {
                 log.warn("Provider '{}' failed for base currency {}: {}", provider.getName(), baseCurrency.getCurrencyCode(), e.getMessage());
             }
@@ -64,7 +53,7 @@ public class ExchangeRateService {
     }
 
     public RateResult getRate(Currency from, Currency to, ExchangeRateProviderType providerType, boolean fallback) {
-        ExchangeRateData data = self.getAllRates(from, providerType, fallback);
+        ExchangeRateData data = getAllRates(from, providerType, fallback);
         BigDecimal rate = data.rates().get(to);
         if (rate == null) {
             throw new IllegalArgumentException("No rate available for " + from.getCurrencyCode() + " to " + to.getCurrencyCode());
@@ -79,7 +68,7 @@ public class ExchangeRateService {
     }
 
     public MultiConversionResult convertToMultiple(Currency from, List<Currency> targets, BigDecimal amount, ExchangeRateProviderType providerType, boolean fallback) {
-        ExchangeRateData data = self.getAllRates(from, providerType, fallback);
+        ExchangeRateData data = getAllRates(from, providerType, fallback);
         Map<Currency, BigDecimal> results = new LinkedHashMap<>();
         for (Currency target : targets) {
             BigDecimal rate = data.rates().get(target);
