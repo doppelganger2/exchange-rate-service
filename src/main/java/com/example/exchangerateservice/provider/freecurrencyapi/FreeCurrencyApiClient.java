@@ -1,7 +1,6 @@
 package com.example.exchangerateservice.provider.freecurrencyapi;
 
 import com.example.exchangerateservice.provider.freecurrencyapi.dto.FreeCurrencyApiResponse;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
     url = "${exchange-rate.providers.freecurrencyapi.base-url}"
 )
 @ConditionalOnProperty(prefix = "exchange-rate.providers.freecurrencyapi", name = "enabled", havingValue = "true")
-@ConditionalOnExpression("!'${exchange-rate.providers.freecurrencyapi.access-key:}'.isBlank()")
 public interface FreeCurrencyApiClient {
 
     @GetMapping("/latest")
