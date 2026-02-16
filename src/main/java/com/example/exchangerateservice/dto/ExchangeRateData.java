@@ -21,4 +21,8 @@ public record ExchangeRateData(
 
     @Schema(description = "Timestamp reported by the provider for the rate data")
     Instant providerTimestamp
-) {}
+) {
+    public ExchangeRateData {
+        rates = Map.copyOf(rates);
+    }
+}

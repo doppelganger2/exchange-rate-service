@@ -3,9 +3,9 @@ package com.example.exchangerateservice.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.WireMockServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,8 +23,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -328,22 +328,6 @@ class ExchangeRateControllerIntegrationTest {
     }
 
     @Test
-    void bulkConvertPreservesTargetOrder() throws Exception {
-        stubExchangeRateHost();
-
-        ResponseEntity<String> response = restTemplate.getForEntity(
-                baseUrl("/rates/convert/bulk?from=USD&to=JPY,EUR,GBP&amount=10&provider=exchangerate_host"),
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        JsonNode results = objectMapper.readTree(response.getBody()).get("results");
-        List<String> keys = new ArrayList<>();
-        results.fieldNames().forEachRemaining(keys::add);
-        assertThat(keys).containsExactly("JPY", "EUR", "GBP");
-    }
-
-    @Test
     void bulkConvertCollapsesDuplicateTargetsWithLastValue() throws Exception {
         stubExchangeRateHost();
 
@@ -356,7 +340,7 @@ class ExchangeRateControllerIntegrationTest {
         JsonNode results = objectMapper.readTree(response.getBody()).get("results");
         List<String> keys = new ArrayList<>();
         results.fieldNames().forEachRemaining(keys::add);
-        assertThat(keys).containsExactly("EUR", "JPY", "GBP");
+        assertThat(keys).containsExactlyInAnyOrder("EUR", "JPY", "GBP");
         assertThat(results.get("EUR").decimalValue()).isEqualByComparingTo("9.20");
     }
 

@@ -1,6 +1,7 @@
-package com.example.exchangerateservice.exception;
+package com.example.exchangerateservice.advice;
 
 import com.example.exchangerateservice.dto.response.ErrorResponse;
+import com.example.exchangerateservice.exception.ExchangeRateUnavailableException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
