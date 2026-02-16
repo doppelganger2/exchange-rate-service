@@ -7,6 +7,7 @@ import com.example.exchangerateservice.provider.ExchangeRateProviderType;
 import com.example.exchangerateservice.provider.frankfurter.dto.FrankfurterLatestResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@ConditionalOnProperty(prefix = "exchange-rate.providers.frankfurter", name = "enabled", havingValue = "true")
 public class FrankfurterProvider implements ExchangeRateProvider {
 
     private static final Logger log = LoggerFactory.getLogger(FrankfurterProvider.class);

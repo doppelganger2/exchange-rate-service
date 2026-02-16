@@ -8,6 +8,7 @@ import com.example.exchangerateservice.provider.exchangeratehost.dto.ExchangeRat
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@ConditionalOnProperty(prefix = "exchange-rate.providers.exchangerate-host", name = "enabled", havingValue = "true")
 public class ExchangeRateHostProvider implements ExchangeRateProvider {
 
     private static final Logger log = LoggerFactory.getLogger(ExchangeRateHostProvider.class);
