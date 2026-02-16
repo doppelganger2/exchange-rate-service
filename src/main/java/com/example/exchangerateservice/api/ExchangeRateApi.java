@@ -11,6 +11,9 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -19,6 +22,7 @@ import java.util.Currency;
 import java.util.List;
 
 @Tag(name = "Exchange Rate API", description = "Endpoints for currency exchange rates and conversions")
+@Validated
 public interface ExchangeRateApi {
 
     @Operation(
@@ -108,7 +112,7 @@ public interface ExchangeRateApi {
             @RequestParam Currency to,
 
             @Parameter(description = "Amount to convert (must be positive)", example = "100.00", required = true)
-            @RequestParam BigDecimal amount,
+            @RequestParam @Positive(message = "Amount must not be negative or zero") BigDecimal amount,
 
             @Parameter(description = "Provider ID (get available IDs from GET /api/providers). If omitted, uses fallback chain.", example = "exchangerate_host")
             @RequestParam(required = false) String provider,
@@ -140,10 +144,10 @@ public interface ExchangeRateApi {
             @RequestParam Currency from,
 
             @Parameter(description = "List of target currency codes (ISO 4217, 3-letter codes, comma-separated)", example = "EUR,GBP,JPY", required = true)
-            @RequestParam List<Currency> to,
+            @RequestParam @NotEmpty(message = "Target currency list must not be empty") List<Currency> to,
 
             @Parameter(description = "Amount to convert (must be positive)", example = "100.00", required = true)
-            @RequestParam BigDecimal amount,
+            @RequestParam @Positive(message = "Amount must not be negative or zero") BigDecimal amount,
 
             @Parameter(description = "Provider ID (get available IDs from GET /api/providers). If omitted, uses fallback chain.", example = "exchangerate_host")
             @RequestParam(required = false) String provider,
